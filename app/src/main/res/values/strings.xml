@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">ServerApp</string>
+    <string name="btn_download">Download File</string>
+</resources>
