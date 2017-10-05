@@ -19,7 +19,7 @@
         android:layout_weight="2"
         android:layout_height="wrap_content"
         android:id="@+id/btn_download_file"
-
+        android:text="@string/btn_download"
         />
 
 
