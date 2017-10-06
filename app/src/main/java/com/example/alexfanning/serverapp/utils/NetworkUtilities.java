@@ -21,7 +21,8 @@ import java.util.Scanner;
  */
 
 public class NetworkUtilities {
-    private static final String FILE_ENPOINT = "http://10.0.0.78:5000/files";
+    public static final String FILE_ENPOINT = "http://10.0.0.78:5000/files";
+    public static final String DOWNLOAD_FILE_ENPOINT = "http://10.0.0.78:5000/downloadFile/";
 
     public static String getFileJsonResponse() throws IOException{
         HttpURLConnection urlConnection = (HttpURLConnection) buildFileUrl().openConnection();
@@ -49,34 +50,6 @@ public class NetworkUtilities {
         }
         return url;
     }
-
-    public static boolean downloadFile(String url, java.io.File outputFile) {
-        try {
-            URL u = new URL(url);
-            URLConnection conn = u.openConnection();
-            int contentLength = conn.getContentLength();
-
-            DataInputStream stream = new DataInputStream(u.openStream());
-
-            byte[] buffer = new byte[contentLength];
-            stream.readFully(buffer);
-            stream.close();
-
-            DataOutputStream fos = new DataOutputStream(new FileOutputStream(outputFile));
-            fos.write(buffer);
-            fos.flush();
-            fos.close();
-            return true;
-        } catch(FileNotFoundException e) {
-            return false; // swallow a 404
-        } catch (IOException e) {
-            return false; // swallow a 404
-        }
-    }
-
-
-
-
 
 
 

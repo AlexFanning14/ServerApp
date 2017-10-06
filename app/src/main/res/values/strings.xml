@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">ServerApp</string>
     <string name="btn_download">Download File</string>
+    <string name="header_upload">Upload File</string>
+    <string name="btn_select">Select File</string>
+    <string name="btn_upload">Upload File</string>
+    <string name="btn_clear">Clear</string>
 </resources>

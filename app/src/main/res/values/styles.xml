@@ -8,4 +8,20 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <style name="TextViewStyle">
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+        <item name="android:fontFamily">sans-serif-condensed</item>
+    </style>
+
+    <style name="TextViewStyleHeader" parent="TextViewStyle">
+        <item name="android:textSize">@dimen/tb_header_size</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextViewStyleNormal" parent="TextViewStyle">
+        <item name="android:textSize">@dimen/tb_normal_size</item>
+    </style>
+
+
+
 </resources>
