@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">ServerApp</string>
     <string name="btn_download">Download File</string>
+    <string name="menu_refresh">Refresh</string>
+    <string name="btn_delete">Delete File</string>
     <string name="header_upload">Upload File</string>
     <string name="btn_select">Select File</string>
     <string name="btn_upload">Upload File</string>
     <string name="btn_clear">Clear</string>
+    <string name="rv_error_files">Apologies there has been an error retrieving your files.</string>
+    <string name="rv_no_files">It appears that you have no files. Upload a file to get started.</string>
 </resources>

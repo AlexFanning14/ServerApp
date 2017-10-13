@@ -25,9 +25,18 @@ import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.w3c.dom.Text;
 
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 
 public class UploadActivity extends AppCompatActivity {
     private static final int FILE_SELECT_CODE = 0;
@@ -36,7 +45,7 @@ public class UploadActivity extends AppCompatActivity {
     private Button mButtonUpload;
     private TextView mTvUpload;
     private EditText mEtFileName;
-
+    private static String sPath;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,7 +73,7 @@ public class UploadActivity extends AppCompatActivity {
                 new AsyncTask<Void,Void,Void>(){
                     @Override
                     protected Void doInBackground(Void... voids) {
-                        uploadFile();
+                        uploadFile(sPath);
                         return null;
                     }
                 }.execute();
@@ -75,28 +84,158 @@ public class UploadActivity extends AppCompatActivity {
     }
 
 
-    private void uploadFile(){
-        final String url = "http://10.0.0.78:5000/upload";
-        File newFile = new File(mTvUpload.getText().toString());
-        try {
-            HttpClient httpclient = new DefaultHttpClient();
+//    private void uploadFile(){
+//        final String url = "http://10.0.0.78:5000/upload";
+//        final String charset = "UTF-8";
+//        File newFile = new File(mTvUpload.getText().toString());
+//        String boundary = Long.toHexString(System.currentTimeMillis());
+//        String CRLF = "\r\n";
+//        try{
+//            URLConnection connection = new URL(url).openConnection();
+//            connection.setDoOutput(true);
+//            connection.setRequestProperty("Content-Type","multipart/form-data; boundary=" + boundary);
+//            try(
+//                    OutputStream output = connection.getOutputStream();
+//                    PrintWriter writer = new PrintWriter(new OutputStreamWriter(output,charset),true);
+//            ){
+//                writer.append("--" + boundary).append(CRLF);
+//                writer.append("Content-Disposition: form-data; name=\"binaryFile\"; filename=\"" + newFile.getName() + "\"").append(CRLF);
+//            }
+//        }catch(Exception e){
+//
+//        }
+//
+//    }
+public int uploadFile(String sourceFileUri) {
 
-            HttpPost httppost = new HttpPost(url);
 
-            InputStreamEntity reqEntity = new InputStreamEntity(
-                    new FileInputStream(newFile), -1);
-            reqEntity.setContentType("binary/octet-stream");
-            reqEntity.setChunked(true); // Send in multiple parts if needed
-            httppost.setEntity(reqEntity);
-            httpclient.execute(httppost);
-            Log.d(TAG, "SUCCESS: ");
-            //Do something with response...
+    String fileName = sourceFileUri;
 
-        } catch (Exception e) {
-            // show error
-            Log.d(TAG, "ERROR: " + e.getMessage());
-        }
+    HttpURLConnection conn = null;
+    DataOutputStream dos = null;
+    String lineEnd = "\r\n";
+    String twoHyphens = "--";
+    String boundary = "*****";
+    int bytesRead, bytesAvailable, bufferSize;
+    byte[] buffer;
+    int maxBufferSize = 1024 * 1024;
+    File sourceFile = new File(sourceFileUri);
+
+    if (!sourceFile.isFile()) {
+
+
+        runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(UploadActivity.this, "Unable to find file", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        return 0;
+
     }
+    else
+    {
+        int serverResponseCode =0;
+        try {
+
+            // open a URL connection to the Servlet
+            FileInputStream fileInputStream = new FileInputStream(sourceFile);
+            URL url = new URL("http://10.0.0.78:5000/upload");
+
+            // Open a HTTP  connection to  the URL
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setDoInput(true); // Allow Inputs
+            conn.setDoOutput(true); // Allow Outputs
+            conn.setUseCaches(false); // Don't use a Cached Copy
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Connection", "Keep-Alive");
+            conn.setRequestProperty("ENCTYPE", "multipart/form-data");
+            conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
+            conn.setRequestProperty("file", fileName);
+
+            dos = new DataOutputStream(conn.getOutputStream());
+
+            dos.writeBytes(twoHyphens + boundary + lineEnd);
+            dos.writeBytes("Content-Disposition: form-data; name=\"uploadfile\";filename=\""
+                    + mTvUpload.getText().toString() + "\"" + lineEnd);
+
+            dos.writeBytes(lineEnd);
+
+            // create a buffer of  maximum size
+            bytesAvailable = fileInputStream.available();
+
+            bufferSize = Math.min(bytesAvailable, maxBufferSize);
+            buffer = new byte[bufferSize];
+
+            // read file and write it into form...
+            bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+            while (bytesRead > 0) {
+
+                dos.write(buffer, 0, bufferSize);
+                bytesAvailable = fileInputStream.available();
+                bufferSize = Math.min(bytesAvailable, maxBufferSize);
+                bytesRead = fileInputStream.read(buffer, 0, bufferSize);
+
+            }
+
+            // send multipart form data necesssary after file data...
+            dos.writeBytes(lineEnd);
+            dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
+
+            // Responses from the server (code and message)
+            serverResponseCode = conn.getResponseCode();
+            String serverResponseMessage = conn.getResponseMessage();
+
+
+            Log.i("uploadFile", "HTTP Response is : "
+                    + serverResponseMessage + ": " + serverResponseCode);
+
+            if(serverResponseCode == 200){
+
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        String msg = "File Upload Completed.\n\n See uploaded file here : \n\n"
+                                +" C:/xamp/wamp/fileupload/uploads";
+                        Toast.makeText(UploadActivity.this, "File Upload Complete.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+
+            //close the streams //
+            fileInputStream.close();
+            dos.flush();
+            dos.close();
+
+        } catch (MalformedURLException ex) {
+
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(UploadActivity.this, "MalformedURLException", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+            Log.e("Upload file to server", "error: " + ex.getMessage(), ex);
+        } catch (Exception e) {
+
+
+            runOnUiThread(new Runnable() {
+                public void run() {
+
+                    Toast.makeText(UploadActivity.this, "Got Exception : see logcat ", Toast.LENGTH_SHORT).show();
+                }
+            });
+
+        }
+
+        return serverResponseCode;
+
+    } // End else block
+}
+
+
+
 
 
     private void showFileChooser() {
@@ -125,7 +264,7 @@ public class UploadActivity extends AppCompatActivity {
                     // Get the path
                     String path = PathUtil.getPath(this,uri);
                     mTvUpload.setText(path);
-
+                    sPath = path;
                     // Get the file instance
                     // File file = new File(path);
                     // Initiate the upload
@@ -137,27 +276,6 @@ public class UploadActivity extends AppCompatActivity {
 
 
 
-//    public String getPath(Uri uri) {
-//        if ("content".equalsIgnoreCase(uri.getScheme())) {
-//            String[] projection = { "_data" };
-//            Cursor cursor = null;
-//
-//            try {
-//                cursor = getContentResolver().query(uri, projection, null, null, null);
-//                int column_index = cursor.getColumnIndexOrThrow("_data");
-//                if (cursor.moveToFirst()) {
-//                    return cursor.getString(column_index);
-//                }
-//            } catch (Exception e) {
-//                // Eat it
-//            }
-//        }
-//        else if ("file".equalsIgnoreCase(uri.getScheme())) {
-//            return uri.getPath();
-//        }
-//
-//        return null;
-//    }
 
 
 }

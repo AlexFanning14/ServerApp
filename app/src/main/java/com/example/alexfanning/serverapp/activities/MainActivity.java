@@ -51,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_upload){
             openUploadFile();
+        }else if (item.getItemId() == R.id.menu_refresh){
+            setUpLoaders();
         }
         return true;
     }
@@ -86,10 +88,12 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         if (loader.getId() == FileLoader.FILE_LOADER_ID){
             if ( files == null){
                 mRv.setVisibility(View.INVISIBLE);
+                mTvError.setText(getString(R.string.rv_error_files));
                 mTvError.setVisibility(View.VISIBLE);
                 mPb.setVisibility(View.GONE);
             }else if (files.length == 0){
                 mRv.setVisibility(View.INVISIBLE);
+                mTvError.setText(getString(R.string.rv_no_files));
                 mTvError.setVisibility(View.VISIBLE);
                 mPb.setVisibility(View.GONE);
             }else{
@@ -107,6 +111,9 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setUpLoaders();
+    }
 }

@@ -5,4 +5,5 @@
     <dimen name="tb_header_size">26dp</dimen>
     <dimen name="margin_header">15dp</dimen>
     <dimen name="margin_std">15dp</dimen>
+    <dimen name="weight_zero_val">0dp</dimen>
 </resources>

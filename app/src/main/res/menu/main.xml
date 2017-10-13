@@ -7,4 +7,10 @@
         android:orderInCategory="1"
         app:showAsAction="always"
         />
+    <item
+        android:title="@string/menu_refresh"
+        android:id="@+id/menu_refresh"
+        android:orderInCategory="2"
+        app:showAsAction="always"
+        />
 </menu>
