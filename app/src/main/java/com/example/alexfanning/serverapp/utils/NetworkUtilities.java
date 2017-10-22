@@ -21,8 +21,8 @@ import java.util.Scanner;
  */
 
 public class NetworkUtilities {
-    public static final String FILE_ENPOINT = "http://10.0.0.78:5000/files";
-    public static final String DOWNLOAD_FILE_ENPOINT = "http://10.0.0.78:5000/downloadFile/";
+    public static final String FILE_ENPOINT = "http://192.168.1.10:5000/files";
+    public static final String DOWNLOAD_FILE_ENPOINT = "http://192.168.1.10:5000/downloadFile/";
 
     public static String getFileJsonResponse() throws IOException{
         HttpURLConnection urlConnection = (HttpURLConnection) buildFileUrl().openConnection();

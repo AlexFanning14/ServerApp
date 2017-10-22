@@ -140,7 +140,7 @@ public int uploadFile(String sourceFileUri) {
 
             // open a URL connection to the Servlet
             FileInputStream fileInputStream = new FileInputStream(sourceFile);
-            URL url = new URL("http://10.0.0.78:5000/upload");
+            URL url = new URL("http://192.168.1.10:5000/upload");
 
             // Open a HTTP  connection to  the URL
             conn = (HttpURLConnection) url.openConnection();
